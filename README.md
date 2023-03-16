@@ -15,13 +15,15 @@ A napari plugin for keypoint annotation with DeepLabCut
 
 ## Installation
 
-You can install `napari-deeplabcut` via [pip]:
+Start by installing PySide6 with `pip install "pyside6<6.3.2"`; this is the library we now use to build GUIs.
+
+You can then install `napari-deeplabcut` via [pip]:
 
     pip install napari-deeplabcut
 
 
 
-To install latest development version :
+Alternatively, to install the latest development version, run:
 
     pip install git+https://github.com/DeepLabCut/napari-deeplabcut.git
 
@@ -43,7 +45,7 @@ The easiest way to get started is to drop a folder (typically a folder from with
 
 - `2` and `3`, to easily switch between labeling and selection mode
 - `4`, to enable pan & zoom (which is achieved using the mouse wheel or finger scrolling on the Trackpad)
-- `M`, to cycle through regular (sequential), quick, and cycle annotation mode (see the description [here](https://github.com/DeepLabCut/DeepLabCut-label/blob/ee71b0e15018228c98db3b88769e8a8f4e2c0454/dlclabel/layers.py#L9-L19))
+- `M`, to cycle through regular (sequential), quick, and cycle annotation mode (see the description [here](https://github.com/DeepLabCut/napari-deeplabcut/blob/5a5709dd38868341568d66eab548ae8abf37cd63/src/napari_deeplabcut/keypoints.py#L25-L34))
 - `E`, to enable edge coloring (by default, if using this in refinement GUI mode, points with a confidence lower than 0.6 are marked
 in red)
 - `F`, to toggle between animal and body part color scheme.
@@ -59,6 +61,19 @@ Only when saving segmentation masks does a save file dialog pop up to name the d
 keypoint annotations are otherwise automatically saved in the corresponding folder as `CollectedData_<ScorerName>.h5`.
 - As a reminder, DLC will only use the H5 file; so be sure if you open already labeled images you save/overwrite the H5.
 - Note, before saving a layer, make sure the points layer is selected. If the user clicked on the image(s) layer first, does `Save As`, then closes the window, any labeling work during that session will be lost!
+
+
+### Video frame extraction and prediction refinement
+
+Since v0.0.4, videos can be viewed in the GUI.
+
+Since v0.0.5, trailing points can be visualized; e.g., helping in the identification
+of swaps or outlier, jittery predictions.
+
+Loading a video (and its corresponding output h5 file) will enable the video actions
+at the top of the dock widget: they offer the option to manually extract video
+frames from the GUI, or to define cropping coordinates.
+Note that keypoints can be displaced and saved, as when annotating individual frames.
 
 
 ## Workflow
@@ -86,6 +101,8 @@ Suggested workflows, depending on the image folder contents:
 
     Saving works as described in *1*.
 
+    ***Note that if a new body part has been added to the `config.yaml` file after having started to label, loading the config in the GUI is necessary to update the dropdown menus and other metadata.***
+
 3. **Refining labels** – the image folder contains a `machinelabels-iter<#>.h5` file.
 
     The process is analog to *2*.
@@ -94,7 +111,7 @@ Suggested workflows, depending on the image folder contents:
 
     Drop an image folder as in *1*, manually add a *shapes layer*. Then select the *rectangle* in the layer controls (top left pane),
     and start drawing rectangles over the images. Masks and rectangle vertices are saved as described in [Save Layers](#save-layers).
-    Note that masks can be reloaded and edited at a later stage by dropping the `vertices.csv` file onto the canvas. 
+    Note that masks can be reloaded and edited at a later stage by dropping the `vertices.csv` file onto the canvas.
 
 
 ### Labeling multiple image folders
@@ -103,6 +120,13 @@ Labeling multiple image folders has to be done in sequence; i.e., only one image
 After labeling the images of a particular folder is done and the associated *Points layer* has been saved, *all* layers should be removed from the layers list (lower left pane on the GUI) by selecting them and clicking on the trashcan icon.
 Now, another image folder can be labeled, following the process described in *1*, *2*, or *3*, depending on the particular image folder.
 
+
+### Defining cropping coordinates
+
+Prior to defining cropping coordinates, two elements should be loaded in the GUI:
+a video and the DLC project's `config.yaml` file (into which the crop dimensions will be stored).
+Then it suffices to add a `Shapes layer`, draw a `rectangle` in it with the desired area,
+and hit the button `Store crop coordinates`; coordinates are automatically written to the configuration file.
 
 
 ## Contributing
